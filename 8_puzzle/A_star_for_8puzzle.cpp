@@ -5,15 +5,28 @@ using namespace std;
 class A_star_For_8puzzle{
     public:
 
-        int total_vst;
-        
+        int total_vst=0;
+
+        A_star_For_8puzzle(){
+            this->initBoard={0, 1, 2, 3, 4, 5, 6, 7, 8};
+            this->initState=-1;
+        };
+        A_star_For_8puzzle(long long x){
+            this->initState=x;
+        };
         A_star_For_8puzzle(vector<int> x){
             this->initBoard=x;
-            total_vst=0;
         };
 
         void solver(){
-            long long initState=transLate(initBoard);
+            
+            if(initState==-1) initState=transLate(initBoard);
+            
+            if(noSolution(initState)){
+                cout<<"No solution.\n";
+                return ;
+            }
+
             g[initState]=0;
             fa[initState]=-1;
 
@@ -51,37 +64,6 @@ class A_star_For_8puzzle{
                 long long nxtState;
                 bool right=(col!=2), left=(col!=0), up=(row!=0), down=(row!=2);
 
-
-                if(right){
-                    long long nxtPos=t*10;
-                    nxtState=nowState;
-                    nxtState+=nowState/nxtPos%10*t;
-                    nxtState-=nowState/nxtPos%10*nxtPos;
-
-                    //cout<<"right:"<<' '<<nxtState<<'\n';
-
-                    if(!vsted[nxtState]){
-                        fa[nxtState]=nowState;
-                        g[nxtState]=g[nowState]+1;
-                        pq.push({g[nxtState]+h(nxtState), nxtState});
-                    } 
-                }
-
-                if(left){
-                    long long nxtPos=t/10;
-                    nxtState=nowState;
-                    nxtState+=nowState/nxtPos%10*t;
-                    nxtState-=nowState/nxtPos%10*nxtPos;
-
-                    //cout<<"left:"<<' '<<nxtState<<'\n';
-
-                    if(!vsted[nxtState]){
-                        fa[nxtState]=nowState;
-                        g[nxtState]=g[nowState]+1;
-                        pq.push({g[nxtState]+h(nxtState), nxtState});
-                    } 
-                }
-
                 if(up){
                     long long nxtPos=t/1000;
                     nxtState=nowState;
@@ -112,7 +94,36 @@ class A_star_For_8puzzle{
                     } 
                 }
 
-                
+
+                if(left){
+                    long long nxtPos=t/10;
+                    nxtState=nowState;
+                    nxtState+=nowState/nxtPos%10*t;
+                    nxtState-=nowState/nxtPos%10*nxtPos;
+
+                    //cout<<"left:"<<' '<<nxtState<<'\n';
+
+                    if(!vsted[nxtState]){
+                        fa[nxtState]=nowState;
+                        g[nxtState]=g[nowState]+1;
+                        pq.push({g[nxtState]+h(nxtState), nxtState});
+                    } 
+                }
+
+                if(right){
+                    long long nxtPos=t*10;
+                    nxtState=nowState;
+                    nxtState+=nowState/nxtPos%10*t;
+                    nxtState-=nowState/nxtPos%10*nxtPos;
+
+                    //cout<<"right:"<<' '<<nxtState<<'\n';
+
+                    if(!vsted[nxtState]){
+                        fa[nxtState]=nowState;
+                        g[nxtState]=g[nowState]+1;
+                        pq.push({g[nxtState]+h(nxtState), nxtState});
+                    } 
+                }
             }
         }
 
@@ -120,6 +131,7 @@ class A_star_For_8puzzle{
     private:
         
         vector<int>initBoard;
+        long long initState;
         priority_queue<pair<int, long long>, vector<pair<int, long long>>, greater<pair<int, long long>>>pq;
         unordered_map<long long, int>g;
         unordered_map<long long, bool>vsted;
@@ -178,15 +190,32 @@ class A_star_For_8puzzle{
             reverse(ret.begin(), ret.end());
             return ret;
         }
+
+        bool noSolution(long long x){
+            string s=to_string(x);
+
+            int  cnt=0;
+            for(int i=0;i<9;i++){
+                for(int j=i;j<9;j++){
+                    if(s[i]=='0' || s[j]=='0') continue;
+                    if(s[i]>s[j]) cnt++;
+                }
+            }
+
+            return cnt%2;
+        }
 };
 
 int main(){
-    vector<int>init={   4, 3, 2, 
-                        6, 1, 8, 
-                        5, 0 ,7};// give a 8-puzzle
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 
-    A_star_For_8puzzle pb(init);
+    vector<int>init={   2, 1, 3, 
+                        4, 5, 6, 
+                        7, 8, 0};// give a 8-puzzle
+
+    A_star_For_8puzzle pb(x);
     pb.solver();
     cout<<pb.total_vst<<'\n';
+
     cout<<"Fin.\n";
 }
