@@ -29,14 +29,15 @@ class A_star_For_8puzzle{
                 return ;
             }
 
+            int pri=0;
             g[initState]=0;
             fa[initState]={-1, ""};
 
-            pq.push({g[initState]+h(initState), initState});
+            pq.push({g[initState]+h(initState), pri++, initState});
             
 
             while(!pq.empty()){
-                auto [f, nowState]=pq.top();
+                auto [f, cnt, nowState]=pq.top();
                 pq.pop();
 
                 total_vst+=1;
@@ -45,11 +46,12 @@ class A_star_For_8puzzle{
 
                 if(checkGoal(nowState)){
                     findAnswer(nowState);
-
+                    
+                    cout<<"Step: "<<pattern.size()-1<<'\n';
                     for(int i=0;i<pattern.size();i++){
-                        for(auto s:pattern[i]){
-                            cout<<s<<'\n';
-                        }
+                        //for(auto s:pattern[i]){
+                        //    cout<<s<<'\n';
+                        //}
                         if(i!=pattern.size()-1) cout<<operation[i]<<'\n';
                     }
                     return ;
@@ -67,38 +69,37 @@ class A_star_For_8puzzle{
                 bool right=(col!=2), left=(col!=0), up=(row!=0), down=(row!=2);
 
                 if(up){
-                    long long nxtPos=t/1000;
+                    long long nxtPos=t*1000;
                     nxtState=nowState;
-                    nxtState-=nowState/nxtPos%10*nxtPos;
                     nxtState+=nowState/nxtPos%10*t;
+                    nxtState-=nowState/nxtPos%10*nxtPos;
 
                     //cout<<"up:"<<' '<<nxtState<<'\n';
 
                     if(!vsted[nxtState]){
                         fa[nxtState]={nowState, "up"};
                         g[nxtState]=g[nowState]+1;
-                        pq.push({g[nxtState]+h(nxtState), nxtState});
+                        pq.push({g[nxtState]+h(nxtState), pri++, nxtState});
                     } 
                 }
 
                 if(down){
-                    long long nxtPos=t*1000;
+                    long long nxtPos=t/1000;
                     nxtState=nowState;
-                    nxtState+=nowState/nxtPos%10*t;
                     nxtState-=nowState/nxtPos%10*nxtPos;
+                    nxtState+=nowState/nxtPos%10*t;
 
                     //cout<<"down:"<<' '<<nxtState<<'\n';
 
                     if(!vsted[nxtState]){
                         fa[nxtState]={nowState, "down"};
                         g[nxtState]=g[nowState]+1;
-                        pq.push({g[nxtState]+h(nxtState), nxtState});
+                        pq.push({g[nxtState]+h(nxtState), pri++, nxtState});
                     } 
                 }
 
-
                 if(left){
-                    long long nxtPos=t/10;
+                    long long nxtPos=t*10;
                     nxtState=nowState;
                     nxtState+=nowState/nxtPos%10*t;
                     nxtState-=nowState/nxtPos%10*nxtPos;
@@ -108,12 +109,12 @@ class A_star_For_8puzzle{
                     if(!vsted[nxtState]){
                         fa[nxtState]={nowState, "left"};
                         g[nxtState]=g[nowState]+1;
-                        pq.push({g[nxtState]+h(nxtState), nxtState});
+                        pq.push({g[nxtState]+h(nxtState), pri++, nxtState});
                     } 
                 }
 
                 if(right){
-                    long long nxtPos=t*10;
+                    long long nxtPos=t/10;
                     nxtState=nowState;
                     nxtState+=nowState/nxtPos%10*t;
                     nxtState-=nowState/nxtPos%10*nxtPos;
@@ -123,7 +124,7 @@ class A_star_For_8puzzle{
                     if(!vsted[nxtState]){
                         fa[nxtState]={nowState, "right"};
                         g[nxtState]=g[nowState]+1;
-                        pq.push({g[nxtState]+h(nxtState), nxtState});
+                        pq.push({g[nxtState]+h(nxtState), pri++, nxtState});
                     } 
                 }
             }
@@ -134,7 +135,7 @@ class A_star_For_8puzzle{
         
         vector<int>initBoard;
         long long initState;
-        priority_queue<pair<int, long long>, vector<pair<int, long long>>, greater<pair<int, long long>>>pq;
+        priority_queue<tuple<int, int, long long>, vector<tuple<int, int, long long>>, greater<tuple<int, int, long long>>>pq;
         unordered_map<long long, int>g;
         unordered_map<long long, bool>vsted;
         unordered_map<long long, pair<long long, string>>fa;
@@ -144,16 +145,16 @@ class A_star_For_8puzzle{
         
         long long transLate(vector<int> x){
             long long ret=0, p=1;
-            for(int i=0;i<9;i++) ret+=p*x[i], p*=10;
+            for(int i=8;i>=0;i--) ret+=p*x[i], p*=10;
             return ret;
         }
         
         vector<string> turnTranslate(long long x){
             vector<string>ret;
-            long long p=1;
+            long long p=100000000;
             for(int i=0;i<3;i++){
                 ret.push_back(string());
-                for(int j=0;j<3;j++, p*=10){
+                for(int j=0;j<3;j++, p/=10){
                     ret.back()+=('0'+x/p%10);
                 }
             }
@@ -165,7 +166,7 @@ class A_star_For_8puzzle{
             for(int i=0;i<9;i++, p*=10){
                 long long now=x/p%10;
 
-                long long row=now/3, col=now%3, g_row=i/3, g_col=i%3;
+                long long row=now/3, col=now%3, g_row=(8-i)/3, g_col=(8-i)%3;
                 ret+=abs(g_row-row)+abs(g_col-col);
             }
             return ret;
@@ -173,15 +174,15 @@ class A_star_For_8puzzle{
 
         tuple<int, int, int> findZero(long long x){
             long long p=1;
-            for(int i=0;i<9;i++, p*=10){
+            for(int i=8;i>=0;i--, p*=10){
                 if(x/p%10==0){
-                    return {i, i/3, i%3};
+                    return {8-i, i/3, i%3};
                 }
             }
         }
 
         bool checkGoal(long long x){
-            return x==876543210;
+            return x==12345678;
         }
 
         void findAnswer(long long x){
@@ -220,8 +221,9 @@ int main(){
                         7, 8, 0};// give a 8-puzzle
     
     long long x=-1;
+    cin>>x;
 
-    A_star_For_8puzzle pb(init);
+    A_star_For_8puzzle pb(x);
     pb.solver();
     cout<<pb.total_vst<<'\n';
 
