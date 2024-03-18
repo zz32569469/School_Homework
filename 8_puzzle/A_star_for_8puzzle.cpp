@@ -13,9 +13,11 @@ class A_star_For_8puzzle{
         };
         A_star_For_8puzzle(long long x){
             this->initState=x;
+            this->initBoard={0, 1, 2, 3, 4, 5, 6, 7, 8};
         };
         A_star_For_8puzzle(vector<int> x){
             this->initBoard=x;
+            this->initState=-1;
         };
 
         void solver(){
@@ -28,7 +30,7 @@ class A_star_For_8puzzle{
             }
 
             g[initState]=0;
-            fa[initState]=-1;
+            fa[initState]={-1, ""};
 
             pq.push({g[initState]+h(initState), initState});
             
@@ -42,13 +44,13 @@ class A_star_For_8puzzle{
                 //cout<<nowState<<' '<<f<<'\n';
 
                 if(checkGoal(nowState)){
-                    vector<vector<string>> fo=findAnswer(nowState);
+                    findAnswer(nowState);
 
-                    for(auto step:fo){
-                        for(auto pattern:step){
-                            cout<<pattern<<'\n';
+                    for(int i=0;i<pattern.size();i++){
+                        for(auto s:pattern[i]){
+                            cout<<s<<'\n';
                         }
-                        cout<<'\n';
+                        if(i!=pattern.size()-1) cout<<operation[i]<<'\n';
                     }
                     return ;
                 }
@@ -73,7 +75,7 @@ class A_star_For_8puzzle{
                     //cout<<"up:"<<' '<<nxtState<<'\n';
 
                     if(!vsted[nxtState]){
-                        fa[nxtState]=nowState;
+                        fa[nxtState]={nowState, "up"};
                         g[nxtState]=g[nowState]+1;
                         pq.push({g[nxtState]+h(nxtState), nxtState});
                     } 
@@ -88,7 +90,7 @@ class A_star_For_8puzzle{
                     //cout<<"down:"<<' '<<nxtState<<'\n';
 
                     if(!vsted[nxtState]){
-                        fa[nxtState]=nowState;
+                        fa[nxtState]={nowState, "down"};
                         g[nxtState]=g[nowState]+1;
                         pq.push({g[nxtState]+h(nxtState), nxtState});
                     } 
@@ -104,7 +106,7 @@ class A_star_For_8puzzle{
                     //cout<<"left:"<<' '<<nxtState<<'\n';
 
                     if(!vsted[nxtState]){
-                        fa[nxtState]=nowState;
+                        fa[nxtState]={nowState, "left"};
                         g[nxtState]=g[nowState]+1;
                         pq.push({g[nxtState]+h(nxtState), nxtState});
                     } 
@@ -119,7 +121,7 @@ class A_star_For_8puzzle{
                     //cout<<"right:"<<' '<<nxtState<<'\n';
 
                     if(!vsted[nxtState]){
-                        fa[nxtState]=nowState;
+                        fa[nxtState]={nowState, "right"};
                         g[nxtState]=g[nowState]+1;
                         pq.push({g[nxtState]+h(nxtState), nxtState});
                     } 
@@ -135,7 +137,9 @@ class A_star_For_8puzzle{
         priority_queue<pair<int, long long>, vector<pair<int, long long>>, greater<pair<int, long long>>>pq;
         unordered_map<long long, int>g;
         unordered_map<long long, bool>vsted;
-        unordered_map<long long, long long>fa;
+        unordered_map<long long, pair<long long, string>>fa;
+        vector<vector<string>>pattern;
+        vector<string>operation;
 
         
         long long transLate(vector<int> x){
@@ -144,7 +148,7 @@ class A_star_For_8puzzle{
             return ret;
         }
         
-        vector<string> turnTranlate(long long x){
+        vector<string> turnTranslate(long long x){
             vector<string>ret;
             long long p=1;
             for(int i=0;i<3;i++){
@@ -180,15 +184,17 @@ class A_star_For_8puzzle{
             return x==876543210;
         }
 
-        vector<vector<string>> findAnswer(long long x){
-            vector<vector<string>>ret;
+        void findAnswer(long long x){
             while(x!=-1){
-                cout<<x<<'\n';
-                ret.push_back(turnTranlate(x));
-                x=fa[x];
+                //cout<<x<<'\n';
+                pattern.push_back(turnTranslate(x));
+                operation.push_back("move 0 to "+fa[x].second);
+                x=fa[x].first;
             }
-            reverse(ret.begin(), ret.end());
-            return ret;
+            reverse(pattern.begin(), pattern.end());
+            operation.pop_back();
+            reverse(operation.begin(), operation.end());
+            
         }
 
         bool noSolution(long long x){
@@ -207,13 +213,15 @@ class A_star_For_8puzzle{
 };
 
 int main(){
-    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    //ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 
-    vector<int>init={   2, 1, 3, 
+    vector<int>init={   1, 2, 3, 
                         4, 5, 6, 
                         7, 8, 0};// give a 8-puzzle
+    
+    long long x=-1;
 
-    A_star_For_8puzzle pb(x);
+    A_star_For_8puzzle pb(init);
     pb.solver();
     cout<<pb.total_vst<<'\n';
 
