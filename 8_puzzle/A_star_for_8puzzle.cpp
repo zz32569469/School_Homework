@@ -165,7 +165,7 @@ class A_star_For_8puzzle{
             long long ret=0, p=1;
             for(int i=0;i<9;i++, p*=10){
                 long long now=x/p%10;
-
+                if(now==0) continue;
                 long long row=now/3, col=now%3, g_row=(8-i)/3, g_col=(8-i)%3;
                 ret+=abs(g_row-row)+abs(g_col-col);
             }
