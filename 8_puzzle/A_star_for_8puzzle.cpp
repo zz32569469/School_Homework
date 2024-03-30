@@ -25,7 +25,7 @@ class A_star_For_8puzzle{
             if(initState==-1) initState=transLate(initBoard);
             
             if(noSolution(initState)){
-                cout<<"No solution.\n";
+                cout<<"No solution!!\n";
                 return ;
             }
 
@@ -47,7 +47,7 @@ class A_star_For_8puzzle{
                 if(checkGoal(nowState)){
                     findAnswer(nowState);
                     
-                    cout<<"Step: "<<pattern.size()-1<<'\n';
+                    //cout<<"Step: "<<pattern.size()-1<<'\n';
                     for(int i=0;i<pattern.size();i++){
                         //for(auto s:pattern[i]){
                         //    cout<<s<<'\n';
@@ -223,9 +223,14 @@ int main(){
     long long x=-1;
     cin>>x;
 
+    if(x==12345678){
+        cout<<"It is the goal state.\n";
+        return 0;
+    }
+
     A_star_For_8puzzle pb(x);
     pb.solver();
-    cout<<pb.total_vst<<'\n';
+    //cout<<pb.total_vst<<'\n';
 
-    cout<<"Fin.\n";
+    //cout<<"Fin.\n";
 }
