@@ -2,11 +2,11 @@
 
 using namespace std;
 
-class int_array_cell{
+template<class T> class int_array_cell{
     public:
         int_array_cell(){};
 
-        int_array_cell(int *m){
+        int_array_cell(T *m){
             this->_counter=1;
             this->_memory=m;
 
@@ -31,12 +31,20 @@ class int_array_cell{
             cout<<"int_array_cell counter is increased: counter "<<this->_counter<<'\n';
         }
 
+        T get_val(int i){
+            return _memory[i];
+        }
+
+        T& get_mem(int i){
+            return (_memory[i]);
+        }
+
     private:
         int _counter;
-        int *_memory;
+        T *_memory;
 };
 
-class counter_ptr{
+template<class T> class counter_ptr{
     public:
         counter_ptr(){};
 
@@ -47,11 +55,11 @@ class counter_ptr{
             cout<<"coutner_ptr "<<this->_name<<" is not assigned to an int_array_cell\n";
         }
 
-        counter_ptr(char *x, int *a){
+        counter_ptr(char *x, T *a){
             this->_name=new char[1000]();
             *(this->_name)=*x;
-            this->_cell_ptr=new int_array_cell(a);
-            cout<<"counter_ptr "<<this->_name<<" is assigned to an int_array_cell: "<<"counter "<<_cell_ptr->get_counter()<<'\n';;
+            this->_cell_ptr=new int_array_cell<T>(a);
+            cout<<"counter_ptr "<<this->_name<<" is assigned to an int_array_cell: "<<"counter "<<_cell_ptr->get_counter()<<'\n';
         }
 
         ~counter_ptr(){
@@ -63,14 +71,14 @@ class counter_ptr{
             delete this->_name;
         };
 
-        counter_ptr& operator=(int *x){
+        counter_ptr& operator=(T *x){
             if(this->_cell_ptr!=nullptr && this->_cell_ptr->sub_counter()){
                 cout<<"int_array_cell counter "<<this->_cell_ptr->get_counter()<<": deleted\n";
                 delete[] this->_cell_ptr;
             }
 
-            this->_cell_ptr=new int_array_cell(x);
-            cout<<"counter_ptr "<<this->_name<<" is assigned to an int_array_cell: "<<"counter "<<_cell_ptr->get_counter()<<'\n';;
+            this->_cell_ptr=new int_array_cell<T>(x);
+            cout<<"counter_ptr "<<this->_name<<" is assigned to an int_array_cell: "<<"counter "<<_cell_ptr->get_counter()<<'\n';
         }
 
         counter_ptr& operator=(counter_ptr &x){
@@ -83,23 +91,33 @@ class counter_ptr{
                 this->_cell_ptr=x._cell_ptr;
                 this->_cell_ptr->add_counter();
 
-                cout<<"counter_ptr a is assigned to an int_array_cell: counter "<<this->_cell_ptr->get_counter()<<'\n';
+                cout<<"counter_ptr "<<this->_name<<" is assigned to an int_array_cell: counter "<<this->_cell_ptr->get_counter()<<'\n';
             }
+            return *this;
+        }
+
+        T& operator[](int idx){
+            return (this->_cell_ptr->get_mem(idx));
+        }
+        
+        T const operator[](int idx) const {
+            return this->_cell_ptr->get_val(idx);
+        }
+
+        void release(){
+            if(this->_cell_ptr!=nullptr && this->_cell_ptr->sub_counter()){
+                cout<<"int_array_cell counter "<<this->_cell_ptr->get_counter()<<": deleted\n";
+                delete[] this->_cell_ptr;
+            }
+            this->_cell_ptr=nullptr;
+            cout<<"coutner_ptr "<<this->_name<<" is not assigned to an int_array_cell\n";
         }
 
     private:
         char *_name;
-        int_array_cell *_cell_ptr;
+        int_array_cell<T> *_cell_ptr;
 };
 
-counter_ptr b("b", new int[10]);
-
 int main(){
-
-    b=new int[100];
-
-    counter_ptr a("a");
-
-    a=b;
 
 }
